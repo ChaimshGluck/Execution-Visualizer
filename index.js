@@ -1,13 +1,13 @@
 const parser = require("@babel/parser");
 
 const code = `
-let x = 10;
-let y = x + 3;
-x = y + 1;
+let x = 5;
+let y = x + (x + (x + 1));
 `;
 
 const ast = parser.parse(code, {
   sourceType: "module",
+  locations: true,
 });
 
 const state = {
@@ -19,20 +19,28 @@ const steps = [];
 function evaluate(node) {
   switch (node.type) {
     case "NumericLiteral":
+      recordEval(node, node.value);
       return node.value;
 
     case "Identifier":
-      return state.variables[node.name];
+      const val = state.variables[node.name];
+      recordEval(node, val);
+      return val;
 
     case "BinaryExpression":
       const left = evaluate(node.left);
       const right = evaluate(node.right);
 
+      let result;
+
       if (node.operator === "+") {
-        return left + right;
+        result = left + right;
+      } else {
+        throw new Error("Unsupported operator");
       }
 
-      throw new Error("Unsupported operator");
+      recordEval(node, result);
+      return result;
 
     default:
       throw new Error("Unsupported node: " + node.type);
@@ -53,13 +61,13 @@ function execute(node) {
         console.log(`Set ${name} = ${value}`);
       });
 
-      recordStep(node); // ✅ only here
+      recordStep(node)
       break;
 
     case "ExpressionStatement":
       execute(node.expression);
 
-      recordStep(node); // ✅ only AFTER inner execution
+      recordStep(node);
       break;
 
     case "AssignmentExpression":
@@ -70,7 +78,6 @@ function execute(node) {
 
       console.log(`Updated ${name} = ${value}`);
 
-      // ❌ REMOVE recordStep from here
       break;
 
     default:
@@ -81,9 +88,45 @@ function execute(node) {
   console.log("------");
 }
 
+function recordEval(node, result) {
+  steps.push({
+    type: "eval",
+    description: describeNode(node),
+    result,
+    loc: node.loc,
+    variables: { ...state.variables },
+  });
+}
+
+function describeNode(node) {
+  switch (node.type) {
+    case "NumericLiteral":
+      return `${node.value}`;
+
+    case "Identifier":
+      return node.name;
+
+    case "BinaryExpression":
+      return `(${describeNode(node.left)} ${node.operator} ${describeNode(node.right)})`;
+
+    case "VariableDeclaration":
+      return node.declarations
+        .map((decl) => `${decl.id.name} = ${describeNode(decl.init)}`)
+        .join(", ");
+
+    case "AssignmentExpression":
+      return `${node.left.name} = ${describeNode(node.right)}`;
+
+    default:
+      return node.type;
+  }
+}
+
 function recordStep(node) {
   steps.push({
-    nodeType: node.type,
+    type: "statement",
+    description: describeNode(node),
+    loc: node.loc,
     variables: { ...state.variables },
   });
 }
