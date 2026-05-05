@@ -3,8 +3,6 @@ import { state } from "./variables.js";
 import { recordStep } from "./functions.js";
 
 export function execute(node) {
-  console.log("Executing:", node.type);
-
   switch (node.type) {
     case "VariableDeclaration":
       node.declarations.forEach((decl) => {
@@ -12,11 +10,9 @@ export function execute(node) {
         const value = evaluate(decl.init);
 
         state.variables[name] = value;
-
-        console.log(`Set ${name} = ${value}`);
       });
 
-      recordStep(node)
+      recordStep(node);
       break;
 
     case "ExpressionStatement":
@@ -31,14 +27,9 @@ export function execute(node) {
 
       state.variables[name] = value;
 
-      console.log(`Updated ${name} = ${value}`);
-
       break;
 
     default:
       throw new Error("Unsupported execution node: " + node.type);
   }
-
-  console.log("State now:", JSON.stringify(state.variables));
-  console.log("------");
 }

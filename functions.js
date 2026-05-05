@@ -1,4 +1,4 @@
-import { originalCode, colors, steps, state } from "./variables.js";
+import { config, colors, steps, state } from "./variables.js";
 import { render } from "./render.js";
 
 let currentStep = 0;
@@ -50,6 +50,8 @@ export function next() {
   if (currentStep < steps.length - 1) {
     currentStep++;
     render(steps[currentStep], currentStep);
+  } else {
+    render(steps[currentStep], currentStep, "Already at last step.");
   }
 }
 
@@ -57,13 +59,21 @@ export function prev() {
   if (currentStep > 0) {
     currentStep--;
     render(steps[currentStep], currentStep);
+  } else {
+    render(steps[currentStep], currentStep, "Already at first step.");
   }
 }
 
+export function resetSession() {
+  currentStep = 0;
+  steps.length = 0;
+  Object.keys(state.variables).forEach((k) => delete state.variables[k]);
+}
+
 export function highlightCode(start, end) {
-  const before = originalCode.slice(0, start);
-  const match = originalCode.slice(start, end);
-  const after = originalCode.slice(end);
+  const before = config.code.slice(0, start);
+  const match = config.code.slice(start, end);
+  const after = config.code.slice(end);
 
   return (
     colors.gray + before +

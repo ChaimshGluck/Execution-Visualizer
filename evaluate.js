@@ -12,20 +12,68 @@ export function evaluate(node) {
       recordEval(node, val);
       return val;
 
-    case "BinaryExpression":
+    case "BinaryExpression": {
       const left = evaluate(node.left);
       const right = evaluate(node.right);
 
       let result;
 
-      if (node.operator === "+") {
-        result = left + right;
-      } else {
-        throw new Error("Unsupported operator");
+      switch (node.operator) {
+        case "+":
+          result = left + right;
+          break;
+        case "-":
+          result = left - right;
+          break;
+        case "*":
+          result = left * right;
+          break;
+        case "/":
+          result = left / right;
+          break;
+        case "%":
+          result = left % right;
+          break;
+        case "**":
+          result = left ** right;
+          break;
+        case "==":
+          result = left == right;
+          break;
+        case "===":
+          result = left === right;
+          break;
+        case "!=":
+          result = left != right;
+          break;
+        case "!==":
+          result = left !== right;
+          break;
+        case "<":
+          result = left < right;
+          break;
+        case "<=":
+          result = left <= right;
+          break;
+        case ">":
+          result = left > right;
+          break;
+        case ">=":
+          result = left >= right;
+          break;
+        case "&&":
+          result = left && right;
+          break;
+        case "||":
+          result = left || right;
+          break;
+        default:
+          throw new Error("Unsupported operator: " + node.operator);
       }
 
       recordEval(node, result);
       return result;
+    }
 
     default:
       throw new Error("Unsupported node: " + node.type);

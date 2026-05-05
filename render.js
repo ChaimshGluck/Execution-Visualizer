@@ -1,14 +1,16 @@
-import { originalCode, colors, steps } from "./variables.js";
+import { config, colors, steps } from "./variables.js";
 import { highlightCode } from "./functions.js";
 
-export function render(step, index) {
-  console.clear();
+export function render(step, index, message = "") {
+  process.stdout.write("\x1b[2J\x1b[3J\x1b[H");
 
-  console.log(
-    colors.cyan +
-    `Step ${index + 1} / ${steps.length}` +
-    colors.reset
-  );
+  console.log("\n" + colors.bold + "Code:" + colors.reset);
+
+  if (step.loc) {
+    console.log(highlightCode(step.loc.start.index, step.loc.end.index));
+  } else {
+    console.log(config.code);
+  }
 
   console.log(colors.gray + "------------------" + colors.reset);
 
@@ -31,11 +33,18 @@ export function render(step, index) {
   console.log("\n" + colors.bold + "Variables:" + colors.reset);
   console.log(step.variables);
 
-  console.log("\n" + colors.bold + "Code:" + colors.reset);
+  console.log(
+    "\n" +
+    colors.cyan +
+    `Step ${index + 1} / ${steps.length}` +
+    colors.gray +
+    `  —  ${config.scriptName}` +
+    colors.reset
+  );
 
-  if (step.loc) {
-    console.log(highlightCode(step.loc.start.index, step.loc.end.index));
-  } else {
-    console.log(originalCode);
+  console.log(colors.gray + "[n] next  [p] prev  [m] menu  [q] quit" + colors.reset);
+
+  if (message) {
+    console.log(colors.yellow + message + colors.reset);
   }
 }
