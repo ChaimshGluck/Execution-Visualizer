@@ -7,6 +7,10 @@ export function evaluate(node) {
       recordEval(node, node.value);
       return node.value;
 
+    case "BooleanLiteral":
+      recordEval(node, node.value);
+      return node.value;
+
     case "Identifier":
       const val = state.variables[node.name];
       recordEval(node, val);

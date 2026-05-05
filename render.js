@@ -21,6 +21,13 @@ export function render(step, index, message = "") {
       colors.reset +
       ` ${step.description} → ${step.result}`
     );
+  } else if (step.type === "branch") {
+    console.log(
+      colors.cyan +
+      `BRANCH:` +
+      colors.reset +
+      ` ${step.description}`
+    );
   } else {
     console.log(
       colors.yellow +

@@ -1,6 +1,6 @@
 import { evaluate } from "./evaluate.js";
 import { state } from "./variables.js";
-import { recordStep } from "./functions.js";
+import { recordStep, recordBranch } from "./functions.js";
 
 export function execute(node) {
   switch (node.type) {
@@ -21,13 +21,27 @@ export function execute(node) {
       recordStep(node);
       break;
 
-    case "AssignmentExpression":
+    case "AssignmentExpression": {
       const name = node.left.name;
       const value = evaluate(node.right);
 
       state.variables[name] = value;
 
       break;
+    }
+
+    case "IfStatement": {
+      const test = evaluate(node.test);
+      recordBranch(node, test);
+
+      if (test) {
+        node.consequent.body.forEach(execute);
+      } else if (node.alternate) {
+        node.alternate.body.forEach(execute);
+      }
+
+      break;
+    }
 
     default:
       throw new Error("Unsupported execution node: " + node.type);

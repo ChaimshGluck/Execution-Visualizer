@@ -18,6 +18,9 @@ function describeNode(node) {
     case "NumericLiteral":
       return `${node.value}`;
 
+    case "BooleanLiteral":
+      return `${node.value}`;
+
     case "Identifier":
       return node.name;
 
@@ -32,6 +35,13 @@ function describeNode(node) {
     case "AssignmentExpression":
       return `${node.left.name} = ${describeNode(node.right)}`;
 
+    case "IfStatement": {
+      const test = describeNode(node.test);
+      return node.alternate
+        ? `if (${test}) { ... } else { ... }`
+        : `if (${test}) { ... }`;
+    }
+
     default:
       return node.type;
   }
@@ -42,6 +52,16 @@ export function recordStep(node) {
     type: "statement",
     description: describeNode(node),
     loc: node.loc,
+    variables: { ...state.variables },
+  });
+}
+
+export function recordBranch(node, result) {
+  const taken = result ? "true → entering if" : (node.alternate ? "false → entering else" : "false → skipping");
+  steps.push({
+    type: "branch",
+    description: `if (${describeNode(node.test)}) → ${taken}`,
+    loc: node.test.loc,
     variables: { ...state.variables },
   });
 }
