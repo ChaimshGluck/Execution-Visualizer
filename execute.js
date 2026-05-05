@@ -43,6 +43,19 @@ export function execute(node) {
       break;
     }
 
+    case "WhileStatement": {
+      let test = evaluate(node.test);
+      recordBranch(node, test);
+
+      while (test) {
+        node.body.body.forEach(execute);
+        test = evaluate(node.test);
+        recordBranch(node, test);
+      }
+
+      break;
+    }
+
     default:
       throw new Error("Unsupported execution node: " + node.type);
   }

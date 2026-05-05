@@ -42,6 +42,9 @@ function describeNode(node) {
         : `if (${test}) { ... }`;
     }
 
+    case "WhileStatement":
+      return `while (${describeNode(node.test)}) { ... }`;
+
     default:
       return node.type;
   }
@@ -57,10 +60,17 @@ export function recordStep(node) {
 }
 
 export function recordBranch(node, result) {
-  const taken = result ? "true → entering if" : (node.alternate ? "false → entering else" : "false → skipping");
+  const isWhile = node.type === "WhileStatement";
+  const keyword = isWhile ? "while" : "if";
+  let taken;
+  if (isWhile) {
+    taken = result ? "true → looping" : "false → exiting loop";
+  } else {
+    taken = result ? "true → entering if" : (node.alternate ? "false → entering else" : "false → skipping");
+  }
   steps.push({
     type: "branch",
-    description: `if (${describeNode(node.test)}) → ${taken}`,
+    description: `${keyword} (${describeNode(node.test)}) → ${taken}`,
     loc: node.test.loc,
     variables: { ...state.variables },
   });
