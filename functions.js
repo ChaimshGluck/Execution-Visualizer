@@ -45,6 +45,18 @@ function describeNode(node) {
     case "WhileStatement":
       return `while (${describeNode(node.test)}) { ... }`;
 
+    case "ForStatement": {
+      const init = node.init ? describeNode(node.init) : "";
+      const test = node.test ? describeNode(node.test) : "";
+      const update = node.update ? describeNode(node.update) : "";
+      return `for (${init}; ${test}; ${update}) { ... }`;
+    }
+
+    case "UpdateExpression":
+      return node.prefix
+        ? `${node.operator}${node.argument.name}`
+        : `${node.argument.name}${node.operator}`;
+
     default:
       return node.type;
   }
@@ -60,10 +72,10 @@ export function recordStep(node) {
 }
 
 export function recordBranch(node, result) {
-  const isWhile = node.type === "WhileStatement";
-  const keyword = isWhile ? "while" : "if";
+  const isLoop = node.type === "WhileStatement" || node.type === "ForStatement";
+  const keyword = isLoop ? (node.type === "ForStatement" ? "for" : "while") : "if";
   let taken;
-  if (isWhile) {
+  if (isLoop) {
     taken = result ? "true → looping" : "false → exiting loop";
   } else {
     taken = result ? "true → entering if" : (node.alternate ? "false → entering else" : "false → skipping");

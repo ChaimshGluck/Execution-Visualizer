@@ -56,6 +56,32 @@ export function execute(node) {
       break;
     }
 
+    case "ForStatement": {
+      if (node.init) execute(node.init);
+
+      if (node.test) {
+        let test = evaluate(node.test);
+        recordBranch(node, test);
+
+        while (test) {
+          node.body.body.forEach(execute);
+          if (node.update) execute(node.update);
+          test = evaluate(node.test);
+          recordBranch(node, test);
+        }
+      }
+
+      break;
+    }
+
+    case "UpdateExpression": {
+      const name = node.argument.name;
+      const before = state.variables[name];
+      state.variables[name] = node.operator === "++" ? before + 1 : before - 1;
+      recordStep(node);
+      break;
+    }
+
     default:
       throw new Error("Unsupported execution node: " + node.type);
   }
