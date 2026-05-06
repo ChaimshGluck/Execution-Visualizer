@@ -57,6 +57,9 @@ function describeNode(node) {
         ? `${node.operator}${node.argument.name}`
         : `${node.argument.name}${node.operator}`;
 
+    case "UnaryExpression":
+      return `${node.operator}${describeNode(node.argument)}`;
+
     default:
       return node.type;
   }

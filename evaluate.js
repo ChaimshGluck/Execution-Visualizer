@@ -79,6 +79,16 @@ export function evaluate(node) {
       return result;
     }
 
+    case "UnaryExpression": {
+      if (node.operator !== "!") {
+        throw new Error("Unsupported unary operator: " + node.operator);
+      }
+      const val = evaluate(node.argument);
+      const result = !val;
+      recordEval(node, result);
+      return result;
+    }
+
     default:
       throw new Error("Unsupported node: " + node.type);
   }
