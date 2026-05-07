@@ -2,6 +2,12 @@ import { evaluate } from "./evaluate.js";
 import { state } from "./variables.js";
 import { recordStep, recordBranch } from "./functions.js";
 
+export class ReturnSignal {
+  constructor(value) {
+    this.value = value;
+  }
+}
+
 export function execute(node) {
   switch (node.type) {
     case "VariableDeclaration":
@@ -80,6 +86,18 @@ export function execute(node) {
       state.variables[name] = node.operator === "++" ? before + 1 : before - 1;
       recordStep(node);
       break;
+    }
+
+    case "FunctionDeclaration": {
+      state.functions[node.id.name] = node;
+      recordStep(node);
+      break;
+    }
+
+    case "ReturnStatement": {
+      const value = node.argument ? evaluate(node.argument) : undefined;
+      recordStep(node);
+      throw new ReturnSignal(value);
     }
 
     default:

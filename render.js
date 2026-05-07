@@ -33,6 +33,13 @@ export function render(step, index, message = "") {
       colors.reset +
       ` ${step.description}`
     );
+  } else if (step.type === "call") {
+    console.log(
+      colors.green +
+      `CALL:` +
+      colors.reset +
+      ` ${step.description}`
+    );
   } else {
     console.log(
       colors.yellow +

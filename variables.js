@@ -5,6 +5,7 @@ export const config = {
 
 export const state = {
   variables: {},
+  functions: {},
 };
 
 export const steps = [];

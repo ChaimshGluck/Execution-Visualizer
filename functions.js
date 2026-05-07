@@ -63,6 +63,19 @@ function describeNode(node) {
     case "UnaryExpression":
       return `${node.operator}${describeNode(node.argument)}`;
 
+    case "FunctionDeclaration": {
+      const params = node.params.map((p) => p.name).join(", ");
+      return `function ${node.id.name}(${params}) { ... }`;
+    }
+
+    case "ReturnStatement":
+      return node.argument ? `return ${describeNode(node.argument)}` : `return`;
+
+    case "CallExpression": {
+      const args = node.arguments.map(describeNode).join(", ");
+      return `${node.callee.name}(${args})`;
+    }
+
     default:
       return node.type;
   }
@@ -72,6 +85,16 @@ export function recordStep(node) {
   steps.push({
     type: "statement",
     description: describeNode(node),
+    loc: node.loc,
+    variables: { ...state.variables },
+  });
+}
+
+export function recordCall(node, args) {
+  const argList = args.map((a) => (typeof a === "string" ? `"${a}"` : String(a))).join(", ");
+  steps.push({
+    type: "call",
+    description: `${node.callee.name}(${argList})`,
     loc: node.loc,
     variables: { ...state.variables },
   });
@@ -116,6 +139,7 @@ export function resetSession() {
   currentStep = 0;
   steps.length = 0;
   Object.keys(state.variables).forEach((k) => delete state.variables[k]);
+  Object.keys(state.functions).forEach((k) => delete state.functions[k]);
 }
 
 export function highlightCode(start, end) {
