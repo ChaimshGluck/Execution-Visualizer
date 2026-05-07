@@ -1,6 +1,11 @@
 import { config, colors, steps } from "./variables.js";
 import { highlightCode } from "./functions.js";
 
+function displayValue(val) {
+  if (typeof val === "string") return `"${val}"`;
+  return String(val);
+}
+
 export function render(step, index, message = "") {
   process.stdout.write("\x1b[2J\x1b[3J\x1b[H");
 
@@ -19,7 +24,7 @@ export function render(step, index, message = "") {
       colors.yellow +
       `EVAL:` +
       colors.reset +
-      ` ${step.description} → ${step.result}`
+      ` ${step.description} → ${displayValue(step.result)}`
     );
   } else if (step.type === "branch") {
     console.log(

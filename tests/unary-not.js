@@ -8,3 +8,5 @@ let isNotSmall = !isSmall;
 if (!done) {
   done = true;
 }
+
+let k = "test";

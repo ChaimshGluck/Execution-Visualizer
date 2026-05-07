@@ -21,6 +21,9 @@ function describeNode(node) {
     case "BooleanLiteral":
       return `${node.value}`;
 
+    case "StringLiteral":
+      return `"${node.value}"`;
+
     case "Identifier":
       return node.name;
 
